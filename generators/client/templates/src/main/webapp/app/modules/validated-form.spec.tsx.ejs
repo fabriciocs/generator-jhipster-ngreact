@@ -1,0 +1,57 @@
+
+<%#
+ Copyright 2013-2024 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import ValidatedForm from './validated-form';
+
+describe('ValidatedForm', () => {
+  const defaultValues = {
+    name: 'Test Name',
+    description: 'Test Description',
+  };
+
+  const handleSubmit = jest.fn();
+
+  it('renders the form with default values', () => {
+    render(<ValidatedForm defaultValues={defaultValues} onSubmit={handleSubmit} />);
+
+    expect(screen.getByLabelText(/Name/i)).toHaveValue('Test Name');
+    expect(screen.getByLabelText(/Description/i)).toHaveValue('Test Description');
+  });
+
+  it('calls onSubmit with form data when form is submitted', () => {
+    render(<ValidatedForm defaultValues={defaultValues} onSubmit={handleSubmit} />);
+
+    fireEvent.click(screen.getByText(/Save/i));
+
+    expect(handleSubmit).toHaveBeenCalledWith(defaultValues, expect.any(Object));
+ 
+
+ });
+
+  it('shows validation error when required field is empty', async () => {
+    render(<ValidatedForm defaultValues={{}} onSubmit={handleSubmit} />);
+
+    fireEvent.click(screen.getByText(/Save/i));
+
+    expect(await screen.findByText(/This field is required/i)).toBeInTheDocument();
+  });
+});

@@ -1,0 +1,130 @@
+
+ Copyright 2013-2024 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+import React, { useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { Button, Container, Typography, Box, Grid } from '@mui/material';
+import {
+  Translate,
+  TextFormat,
+  openFile,
+  byteSize,
+} from 'react-jhipster';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { getEntity } from './<%= entityFileName %>.reducer';
+
+export const <%= entityReactName %>Detail = () => {
+  const dispatch = useAppDispatch();
+  const { id } = useParams<'id'>();
+
+  useEffect(() => {
+    dispatch(getEntity(id));
+  }, []);
+
+  const <%= entityInstance %>Entity = useAppSelector(state => state.<%= entityReactState %>.entity);
+  return (
+    <Container>
+      <Typography variant="h4" gutterBottom>
+        <Translate contentKey="<%= i18nKeyPrefix %>.detail.title"><%= entityClass %></Translate>
+      </Typography>
+      <Grid container spacing={3}>
+        <%_ for (field of fields) { _%>
+        <Grid item xs={12}>
+          <Typography variant="subtitle1" color="textSecondary">
+            <Translate contentKey="<%= field.fieldTranslationKey %>">
+              <%= field.fieldNameHumanized %>
+            </Translate>
+          </Typography>
+          <Typography variant="body1">
+            <%_ if (field.fieldTypeBoolean) { _%>
+              {<%= entityInstance %>Entity.<%= field.fieldName %> ? 'true' : 'false'}
+            <%_ } else if (field.fieldTypeTimed) { _%>
+              {<%= entityInstance %>Entity.<%= field.fieldName %> ? (
+                <TextFormat value={<%= entityInstance %>Entity.<%= field.fieldName %>} type="date" format="YYYY-MM-DD" />
+              ) : null}
+            <%_ } else if (field.fieldTypeBinary) { _%>
+              {<%= entityInstance %>Entity.<%= field.fieldName %> ? (
+                <div>
+                  {<%= entityInstance %>Entity.<%= field.fieldName %>ContentType ? (
+                    <a onClick={openFile(<%= entityInstance %>Entity.<%= field.fieldName %>ContentType, <%= entityInstance %>Entity.<%= field.fieldName %>)}>
+                      {<%= entityInstance %>Entity.<%= field.fieldName %>ContentType.startsWith('image/') ? (
+                        <img src={`data:${<%= entityInstance %>Entity.<%= field.fieldName %>ContentType};base64,${<%= entityInstance %>Entity.<%= field.fieldName %>}`} style={{ maxHeight: '30px' }} />
+                      ) : (
+                        <Translate contentKey="entity.action.open">Open</Translate>
+                      )}
+                    </a>
+                  ) : null}
+                  <span>
+                    {<%= entityInstance %>Entity.<%= field.fieldName %>ContentType}, {byteSize(<%= entityInstance %>Entity.<%= field.fieldName %>)}
+                  </span>
+                </div>
+              ) : null}
+            <%_ } else { _%>
+              {<%= entityInstance %>Entity.<%= field.fieldName %>}
+            <%_ } _%>
+          </Typography>
+        </Grid>
+        <%_ } _%>
+        <%_ for (relationship of relationships) { _%>
+        <Grid item xs={12}>
+          <Typography variant="subtitle1" color="textSecondary">
+            <Translate contentKey="<%= i18nKeyPrefix %>.<%= relationship.relationshipName %>">
+              <%= relationship.relationshipNameHumanized %>
+            </Translate>
+          </Typography>
+          <Typography variant="body1">
+            <%_ if (relationship.relationshipType === 'many-to-one' || relationship.relationshipType === 'one-to-one') { _%>
+              {<%= entityInstance %>Entity.<%= relationship.relationshipFieldName %> ? (
+                <Link to={`/<%= relationship.otherEntity.entityFolderName %>/${<%= entityInstance %>Entity.<%= relationship.relationshipFieldName %>.<%= relationship.otherEntity.primaryKey.name %>}`}>
+                  {<%= entityInstance %>Entity.<%= relationship.relationshipFieldName %>.<%= relationship.otherEntity.otherEntityField %>}
+                </Link>
+              ) : null}
+            <%_ } else { _%>
+              {<%= entityInstance %>Entity.<%= relationship.relationshipFieldNamePlural %> ? (
+                <ul>
+                  {<%= entityInstance %>Entity.<%= relationship.relationshipFieldNamePlural %>.map((item, index) => (
+                    <li key={index}>
+                      <Link to={`/<%= relationship.otherEntity.entityFolderName %>/${item.<%= relationship.otherEntity.primaryKey.name %>}`}>
+                        {item.<%= relationship.otherEntity.otherEntityField %>}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            <%_ } _%>
+          </Typography>
+        </Grid>
+        <%_ } _%>
+      </Grid>
+      <Box mt={2}>
+        <Button variant="contained" color="primary" component={Link} to={`/<%= entityPage %>/${<%= entityInstance %>Entity.<%= primaryKey.name %>}/edit`}>
+          <Translate contentKey="entity.action.edit">Edit</Translate>
+        </Button>
+        &nbsp;
+        <Button variant="contained" color="secondary" component={Link} to="/<%= entityPage %>">
+          <Translate contentKey="entity.action.back">Back</Translate>
+        </Button>
+      </Box>
+    </Container>
+  );
+};
+
+export default <%= entityReactName %>Detail;
+```
+

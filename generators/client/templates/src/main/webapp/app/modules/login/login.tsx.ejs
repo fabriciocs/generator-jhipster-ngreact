@@ -1,0 +1,110 @@
+
+<%#
+ Copyright 2013-2024 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+import React, { useState } from 'react';
+import { Link, useLocation, Navigate } from 'react-router-dom';
+import { Container, TextField, Button, Typography, Grid, Paper } from '@mui/material';
+import { Translate, translate } from 'react-jhipster';
+
+import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { handleLogin, reset } from 'app/shared/reducers/authentication';
+
+const Login = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+
+  const handleSubmit = event => {
+    event.preventDefault();
+    dispatch(handleLogin({ username, password, rememberMe }));
+  };
+
+  const loginError = useAppSelector(state => state.authentication.loginError);
+  const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
+
+  const { from } = location.state || { from: { pathname: '/' } };
+  if (isAuthenticated) {
+    return <Navigate to={from} />;
+  }
+
+  return (
+    <Container component="main" maxWidth="xs">
+      <Paper elevation={3} style={{ padding: '20px' }}>
+        <Typography component="h1" variant="h5">
+          <Translate contentKey="login.title">Sign in</Translate>
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="username"
+            label={translate('global.form.username')}
+            name="username"
+            autoComplete="username"
+            autoFocus
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label={translate('login.form.password')}
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+          <Button type="submit" fullWidth variant="contained" color="primary">
+            <Translate contentKey="login.form.button">Sign in</Translate>
+          </Button>
+          {loginError ? (
+            <Typography color="error" align="center">
+              <Translate contentKey="login.messages.error.authentication">
+                Failed to sign in!
+              </Translate>
+            </Typography>
+          ) : null}
+        </form>
+        <Grid container>
+          <Grid item xs>
+            <Button component={Link} to="/account/reset/request" color="primary">
+              <Translate contentKey="login.password.forgot">Did you forget your password?</Translate>
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button component={Link} to="/account/register" color="primary">
+              <Translate contentKey="login.form.register">Register a new account</Translate>
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+    </Container>
+  );
+};
+
+export default Login;

@@ -1,0 +1,111 @@
+
+<%#
+ Copyright 2013-2024 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+import React, { useState } from 'react';
+import { Modal, Box, Typography, TextField, Button, Checkbox, FormControlLabel } from '@mui/material';
+import { Translate, translate } from 'react-jhipster';
+
+import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { handleLogin, reset } from 'app/shared/reducers/authentication';
+
+const style = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 4,
+};
+
+const LoginModal = ({ open, handleClose }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const dispatch = useAppDispatch();
+
+  const handleSubmit = event => {
+    event.preventDefault();
+    dispatch(handleLogin({ username, password, rememberMe }));
+    handleClose();
+  };
+
+  const loginError = useAppSelector(state => state.authentication.loginError);
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="modal-login-title"
+      aria-describedby="modal-login-description"
+    >
+      <Box sx={style}>
+        <Typography component="h1" variant="h5" id="modal-login-title">
+          <Translate contentKey="login.title">Sign in</Translate>
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="username"
+            label={translate('global.form.username')}
+            name="username"
+            autoComplete="username"
+            autoFocus
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label={translate('login.form.password')}
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+          <FormControlLabel
+            control={<Checkbox value="remember" color="primary" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} />}
+            label={translate('login.form.rememberme')}
+          />
+          <Button type="submit" fullWidth variant="contained" color="primary">
+            <Translate contentKey="login.form.button">Sign in</Translate>
+          </Button>
+          {loginError ? (
+            <Typography color="error" align="center">
+              <Translate contentKey="login.messages.error.authentication">
+                Failed to sign in!
+              </Translate>
+            </Typography>
+          ) : null}
+        </form>
+      </Box>
+    </Modal>
+  );
+};
+
+export default LoginModal;
