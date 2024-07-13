@@ -125,16 +125,7 @@ def move_files(source_dir, file_mapping):
 for source_dir in source_dirs:
     move_files(source_dir, file_mapping)
 
-# Initialize a new Git repository and commit changes
-subprocess.run(["git", "init"], check=True)
 subprocess.run(["git", "add", "."], check=True)
 subprocess.run(["git", "commit", "-m", "Initial commit of JHipster Material-UI blueprint"], check=True)
 
-# Check if remote 'origin' already exists
-result = subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True, text=True)
-if "https://github.com/fabriciocs/generator-jhipster-ngreact.git" not in result.stdout:
-    subprocess.run(["git", "remote", "remove", "origin"], check=True)
-
-# Add the remote repository and push changes
-subprocess.run(["git", "remote", "add", "origin", "https://github.com/fabriciocs/generator-jhipster-ngreact.git"], check=True)
-subprocess.run(["git", "push", "-u", "origin", "master"], check=True)
+subprocess.run(["git", "push", "-u", "origin", "main"], check=True)
